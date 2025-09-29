@@ -11,12 +11,32 @@ const downloadBtn = document.getElementById('download-recording');
 const countdownElement = document.getElementById('countdown');
 const countdownText = document.getElementById('countdown-text');
 
+// Simple support checks
+const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+const isScreenCaptureSupported = !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
+
+// Minimal init to handle mobile/unsupported environments
+document.addEventListener('DOMContentLoaded', () => {
+    if (isMobileDevice || !isScreenCaptureSupported) {
+        // Disable start recording to avoid broken UX on unsupported devices
+        startBtn.disabled = true;
+        startBtn.textContent = 'Screen recording not supported';
+        // Keep UI simple: provide one-time alert hinting desktop usage
+        console.warn('Screen recording not supported on this device/browser. Please use a desktop browser.');
+    }
+});
+
 startBtn.addEventListener('click', startRecording);
 stopBtn.addEventListener('click', stopRecording);
 downloadBtn.addEventListener('click', downloadRecording);
 
 async function startRecording() {
     try {
+        // Guard: do nothing if unsupported
+        if (isMobileDevice || !isScreenCaptureSupported) {
+            alert('Screen recording is not supported on this device/browser. Please use a desktop browser.');
+            return;
+        }
         startBtn.disabled = true;
 
         //screen access
